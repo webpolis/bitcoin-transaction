@@ -11,11 +11,6 @@ var providers = {
 	 */
 	balance: {
 		mainnet: {
-			blockexplorer: function (addr) {
-				return request.get('https://blockexplorer.com/api/addr/' + addr + '/balance').send().then(function (res) {
-					return parseFloat(res.body);
-				});
-			},
 			blockchain: function (addr) {
 				return request.get('https://blockchain.info/q/addressbalance/' + addr + '?confirmations=6').send().then(function (res) {
 					return parseFloat(res.body);
@@ -23,11 +18,6 @@ var providers = {
 			}
 		},
 		testnet: {
-			blockexplorer: function (addr) {
-				return request.get('https://testnet.blockexplorer.com/api/addr/' + addr + '/balance').send().then(function (res) {
-					return parseFloat(res.body);
-				});
-			},
 			blockchain: function (addr) {
 				return request.get('https://testnet.blockchain.info/q/addressbalance/' + addr + '?confirmations=6').send().then(function (res) {
 					return parseFloat(res.body);
@@ -61,18 +51,6 @@ var providers = {
 	 */
 	utxo: {
 		mainnet: {
-			blockexplorer: function (addr) {
-				return request.get('https://blockexplorer.com/api/addr/' + addr + '/utxo?noCache=1').send().then(function (res) {
-					return res.body.map(function (e) {
-						return {
-							txid: e.txid,
-							vout: e.vout,
-							satoshis: e.satoshis,
-							confirmations: e.confirmations
-						};
-					});
-				});
-			},
 			blockchain: function (addr) {
 				return request.get('https://blockchain.info/unspent?active=' + addr).send().then(function (res) {
 					return res.body.unspent_outputs.map(function (e) {
@@ -107,12 +85,12 @@ var providers = {
 	 */
 	pushtx: {
 		mainnet: {
-			blockexplorer: function (hexTrans) {
-				return request.post('https://blockexplorer.com/api/tx/send').send('rawtx=' + hexTrans);
-			},
 			blockchain: function (hexTrans) {
 				return request.post('https://blockchain.info/pushtx').send('tx=' + hexTrans);
-			}
+			},
+			blockcypher: function (hexTrans) {
+				return request.post('https://api.blockcypher.com/v1/btc/main/txs/push').send('{"tx":"' + hexTrans + '"}');
+			}			
 		},
 		testnet: {
 			blockchain: function (hexTrans) {
