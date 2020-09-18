@@ -104,13 +104,13 @@ var providers = {
 }
 
 //Set default providers
-providers.balance.mainnet.default = providers.balance.mainnet.blockexplorer;
-providers.balance.testnet.default = providers.balance.testnet.blockexplorer;
+providers.balance.mainnet.default = providers.balance.mainnet.blockchain;
+providers.balance.testnet.default = providers.balance.testnet.blockchain;
 providers.fees.mainnet.default = providers.fees.mainnet.earn;
 providers.fees.testnet.default = providers.fees.testnet.earn;
-providers.utxo.mainnet.default = providers.utxo.mainnet.blockexplorer;
-providers.utxo.testnet.default = providers.utxo.testnet.blockexplorer;
-providers.pushtx.mainnet.default = providers.pushtx.mainnet.blockchain;
+providers.utxo.mainnet.default = providers.utxo.mainnet.blockchain;
+providers.utxo.testnet.default = providers.utxo.testnet.blockchain;
+providers.pushtx.mainnet.default = providers.pushtx.mainnet.blockcypher;
 providers.pushtx.testnet.default = providers.pushtx.testnet.blockcypher;
 
 function getBalance (addr, options) {
