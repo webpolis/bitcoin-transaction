@@ -27,6 +27,11 @@ var providers = {
 				return request.get('https://testnet.blockexplorer.com/api/addr/' + addr + '/balance').send().then(function (res) {
 					return parseFloat(res.body);
 				});
+			},
+			blockchain: function (addr) {
+				return request.get('https://testnet.blockchain.info/q/addressbalance/' + addr + '?confirmations=6').send().then(function (res) {
+					return parseFloat(res.body);
+				});
 			}
 		}
 	},
@@ -82,8 +87,8 @@ var providers = {
 			}
 		},
 		testnet: {
-			blockexplorer: function (addr) {
-				return request.get('https://testnet.blockexplorer.com/api/addr/' + addr + '/utxo?noCache=1').send().then(function (res) {
+			blockchain: function (addr) {
+				return request.get('https://testnet.blockchain.info/unspent?active=' + addr).send().then(function (res) {
 					return res.body.map(function (e) {
 						return {
 							txid: e.txid,
@@ -110,8 +115,8 @@ var providers = {
 			}
 		},
 		testnet: {
-			blockexplorer: function (hexTrans) {
-				return request.post('https://testnet.blockexplorer.com/api/tx/send').send('rawtx=' + hexTrans);
+			blockchain: function (hexTrans) {
+				return request.post('https://testnet.blockchain.info/pushtx').send('tx=' + hexTrans);
 			},
 			blockcypher: function (hexTrans) {
 				return request.post('https://api.blockcypher.com/v1/btc/test3/txs/push').send('{"tx":"' + hexTrans + '"}');
