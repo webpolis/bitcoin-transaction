@@ -12,14 +12,14 @@ var providers = {
 	balance: {
 		mainnet: {
 			blockchain: function (addr) {
-				return request.get('https://blockchain.info/q/addressbalance/' + addr + '?confirmations=6').send().then(function (res) {
+				return request.get('https://blockchain.info/q/addressbalance/' + addr).send().then(function (res) {
 					return parseFloat(res.body);
 				});
 			}
 		},
 		testnet: {
 			blockchain: function (addr) {
-				return request.get('https://testnet.blockchain.info/q/addressbalance/' + addr + '?confirmations=6').send().then(function (res) {
+				return request.get('https://testnet.blockchain.info/q/addressbalance/' + addr).send().then(function (res) {
 					return parseFloat(res.body);
 				});
 			}
