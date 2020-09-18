@@ -13,7 +13,7 @@ var providers = {
 		mainnet: {
 			blockchain: function (addr) {
 				return request.get('https://blockchain.info/q/addressbalance/' + addr).send().then(function (res) {
-					return parseFloat(res.text || res.body);
+					return parseFloat(res.body);
 				});
 			}
 		},
@@ -53,7 +53,7 @@ var providers = {
 		mainnet: {
 			blockchain: function (addr) {
 				return request.get('https://blockchain.info/unspent?active=' + addr).send().then(function (res) {
-					return res.body.unspent_outputs.map(function (e) {
+					return (res.text && JSON.parse(res.text) || res.body).unspent_outputs.map(function (e) {
 						return {
 							txid: e.tx_hash_big_endian,
 							vout: e.tx_output_n,
@@ -67,11 +67,11 @@ var providers = {
 		testnet: {
 			blockchain: function (addr) {
 				return request.get('https://testnet.blockchain.info/unspent?active=' + addr).send().then(function (res) {
-					return res.body.map(function (e) {
+					return (res.text && JSON.parse(res.text) || res.body).unspent_outputs.map(function (e) {
 						return {
-							txid: e.txid,
-							vout: e.vout,
-							satoshis: e.satoshis,
+							txid: e.tx_hash_big_endian,
+							vout: e.tx_output_n,
+							satoshis: e.value,
 							confirmations: e.confirmations
 						};
 					});
@@ -90,7 +90,7 @@ var providers = {
 			},
 			blockcypher: function (hexTrans) {
 				return request.post('https://api.blockcypher.com/v1/btc/main/txs/push').send('{"tx":"' + hexTrans + '"}');
-			}			
+			}
 		},
 		testnet: {
 			blockchain: function (hexTrans) {
@@ -113,21 +113,21 @@ providers.utxo.testnet.default = providers.utxo.testnet.blockchain;
 providers.pushtx.mainnet.default = providers.pushtx.mainnet.blockcypher;
 providers.pushtx.testnet.default = providers.pushtx.testnet.blockcypher;
 
-function getBalance (addr, options) {
+function getBalance(addr, options) {
 	if (options == null) options = {};
 	if (options.network == null) options.network = "mainnet";
 	if (options.balanceProvider == null) options.balanceProvider = providers.balance[options.network].default;
 
 	return options.balanceProvider(addr).then(function (balSat) {
-		return balSat/BITCOIN_SAT_MULT;
+		return balSat / BITCOIN_SAT_MULT;
 	});
 }
 
-function getTransactionSize (numInputs, numOutputs) {
-	return numInputs*180 + numOutputs*34 + 10 + numInputs;
+function getTransactionSize(numInputs, numOutputs) {
+	return numInputs * 180 + numOutputs * 34 + 10 + numInputs;
 }
 
-function getFees (provider, feeName) {
+function getFees(provider, feeName) {
 	if (typeof feeName === 'number') {
 		return Promise.resolve(feeName);
 	} else {
@@ -135,7 +135,7 @@ function getFees (provider, feeName) {
 	}
 }
 
-function sendTransaction (options) {
+function sendTransaction(options) {
 	//Required
 	if (options == null || typeof options !== 'object') throw "Options must be specified and must be an object.";
 	if (options.from == null) throw "Must specify from address.";
@@ -155,7 +155,7 @@ function sendTransaction (options) {
 	var from = options.from;
 	var to = options.to;
 	var amount = options.btc;
-	var amtSatoshi = Math.floor(amount*BITCOIN_SAT_MULT);
+	var amtSatoshi = Math.floor(amount * BITCOIN_SAT_MULT);
 	var bitcoinNetwork = options.network == "testnet" ? bitcoin.networks.testnet : bitcoin.networks.bitcoin;
 
 	return Promise.all([
@@ -183,7 +183,7 @@ function sendTransaction (options) {
 		if (availableSat < amtSatoshi) throw "You do not have enough in your wallet to send that much.";
 
 		var change = availableSat - amtSatoshi;
-		var fee = getTransactionSize(ninputs, change > 0 ? 2 : 1)*feePerByte;
+		var fee = getTransactionSize(ninputs, change > 0 ? 2 : 1) * feePerByte;
 		if (fee > amtSatoshi) throw "BitCoin amount must be larger than the fee. (Ideally it should be MUCH larger)";
 		tx.addOutput(to, amtSatoshi - fee);
 		if (change > 0) tx.addOutput(from, change);
