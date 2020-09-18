@@ -13,14 +13,14 @@ var providers = {
 		mainnet: {
 			blockchain: function (addr) {
 				return request.get('https://blockchain.info/q/addressbalance/' + addr).send().then(function (res) {
-					return parseFloat(res.body);
+					return parseFloat(res.text || res.body);
 				});
 			}
 		},
 		testnet: {
 			blockchain: function (addr) {
 				return request.get('https://testnet.blockchain.info/q/addressbalance/' + addr).send().then(function (res) {
-					return parseFloat(res.body);
+					return parseFloat(res.text || res.body);
 				});
 			}
 		}
